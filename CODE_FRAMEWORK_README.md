@@ -99,6 +99,10 @@ src/
   output/
     output_controller.py
 
+  training/
+    losses.py
+    trainer.py
+
   agent.py
   demo.py
   evaluate.py
@@ -325,6 +329,27 @@ The final JSON output includes:
 - final ranking;
 - information to verify.
 
+### `training/losses.py`
+
+Defines the replaceable multi-task objective:
+
+```text
+L = L_outcome
+  + lambda_MD * L_physician_action
+  + lambda_K * L_knowledge
+  + lambda_cal * L_calibration
+```
+
+The current implementation is framework-agnostic and uses plain Python numbers.
+It is not real clinical training. It exists to show how future empirical code
+would connect outcome labels, historical physician actions, knowledge
+constraints, and calibration regularization.
+
+### `training/trainer.py`
+
+Runs one synthetic training-objective smoke example. This gives an inspectable
+loss breakdown without pretending that we have trained a real model.
+
 ## How to Run
 
 From the project root:
@@ -351,6 +376,12 @@ Generate JSON Lines output:
 python3 -m src.demo --jsonl demo_outputs.jsonl
 ```
 
+Inspect the training-objective skeleton:
+
+```bash
+python3 -m src.train
+```
+
 ## What Has Been Verified
 
 The tests currently verify:
@@ -363,11 +394,12 @@ The tests currently verify:
 5. Patient goals can modify final ranking.
 6. Missing safety information triggers defer output.
 7. Known contraindications are excluded before ranking.
+8. The training objective skeleton returns named loss components.
 
 Current test result:
 
 ```text
-Ran 7 tests
+Ran 8 tests
 OK
 ```
 
@@ -399,3 +431,5 @@ dataset, the placeholder modules can be replaced by learned components:
 - learned doctor-context calibration branch;
 - disease-specific medical knowledge base;
 - weakly supervised or expert-reviewed attribution module.
+- empirical training loop using outcome, physician-action, knowledge, and
+  calibration losses.
